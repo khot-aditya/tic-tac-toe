@@ -42,210 +42,239 @@ Clear the board, reset the player, and set the game status to ongoing.
 
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Tic Tac Toe</title>
-        <link rel="stylesheet" href="style.css">
 
-        <style>
-            body {
-                background-color: #f5f5f5;
-                font-family: sans-serif;
-                margin: 0;
+<head>
+    <meta charset="UTF-8">
+    <title>Tic Tac Toe</title>
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        body {
+            background-color: #f5f5f5;
+            font-family: sans-serif;
+            margin: 0;
+        }
+
+        h1 {
+            text-align: center;
+            margin: 0;
+            padding: 1rem;
+            background-color: #333;
+            color: #fff;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-gap: 1px;
+            width: 300px;
+            margin: 0 auto;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .cell {
+            background-color: #fff;
+            border: 1px solid #333;
+            width: 100px;
+            height: 100px;
+            font-size: 3rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .cell:hover {
+            background-color: #ddd;
+        }
+
+        .game-status {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .status {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .restart-button {
+            font-size: 1rem;
+            padding: 0.5rem 1rem;
+            border: 2px solid #333;
+            background-color: #fff;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .restart-button:hover {
+            background-color: #333;
+            color: #fff;
+        }
+
+        .footer-text {
+            text-align: center;
+            font-size: 0.75rem;
+            width: 100%;
+            bottom: 0;
+            position: absolute;
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #333;
+            color: #fff;
+        }
+
+        .black-text {
+            width: 100%;
+            position: absolute;
+            bottom: 100px;
+            color: #333;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Tic Tac Toe</h1>
+    <div class="board">
+        <div class="cell" id="0"></div>
+        <div class="cell" id="1"></div>
+        <div class="cell" id="2"></div>
+        <div class="cell" id="3"></div>
+        <div class="cell" id="4"></div>
+        <div class="cell" id="5"></div>
+        <div class="cell" id="6"></div>
+        <div class="cell" id="7"></div>
+        <div class="cell" id="8"></div>
+    </div>
+    <div class="game-status">
+        <div class="status">Player X's turn</div>
+        <button class="restart-button">Restart Game</button>
+    </div>
+    <script>
+        // tic tac toe game's JavaScript code goes here
+
+        // Define variables to represent the game state
+        let board = ["", "", "", "", "", "", "", "", ""];
+        let playerTurn = "X";
+        let gameStatus = "Game On";
+
+        // Add event listeners to the grid cells to handle player interactions
+        const cells = document.querySelectorAll(".cell");
+        const restartButton = document.querySelector(".restart-button");
+
+        cells.forEach((cell) => {
+            cell.addEventListener("click", handleClick);
+        });
+
+        restartButton.addEventListener("click", restartGame);
+
+        // Define a function to handle the click event on a grid cell
+        function handleClick(event) {
+            const cell = event.target;
+            const cellIndex = parseInt(cell.getAttribute("id"));
+
+            // If the cell is not empty or the game is over, return
+            if (board[cellIndex] !== "" || gameStatus !== "Game On") {
+                return;
             }
 
-            h1 {
-                text-align: center;
-                margin: 0;
-                padding: 1rem;
-                background-color: #333;
-                color: #fff;
+            // Update the board based on the clicked cell
+            board[cellIndex] = playerTurn;
+            cell.innerHTML = playerTurn;
+
+            // Check for a win condition
+            if (checkWin()) {
+                gameStatus = `${playerTurn} wins!`;
+                document.querySelector(".status").innerHTML = gameStatus;
+                return;
             }
 
-            .board {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                grid-gap: 1px;
-                width: 300px;
-                margin: 0 auto;
-                margin-top: 1rem;
-                margin-bottom: 1rem;
+            // Update the game status
+            if (checkTie()) {
+                gameStatus = "Tie Game!";
+                document.querySelector(".status").innerHTML = gameStatus;
+                return;
             }
 
-            .cell {
-                background-color: #fff;
-                border: 1px solid #333;
-                width: 100px;
-                height: 100px;
-                font-size: 3rem;
-                cursor: pointer;
-                display: flex;
-                justify-content: center;
-                align-items: center;
+            // Switch players
+            playerTurn = playerTurn === "X" ? "O" : "X";
+            document.querySelector(".status").innerHTML = `Player ${playerTurn}'s turn`;
+        }
+
+        // Create functions to check for a win condition
+        function checkWin() {
+            // Check rows
+            for (let i = 0; i < 9; i += 3) {
+                if (checkThree(i, i + 1, i + 2)) {
+                    return true;
+                }
             }
 
-            .cell:hover {
-                background-color: #ddd;
+            // Check columns
+            for (let i = 0; i < 3; i++) {
+                if (checkThree(i, i + 3, i + 6)) {
+                    return true;
+                }
             }
 
-            .game-status {
-                text-align: center;
-                margin-bottom: 1rem;
+            // Check diagonals
+            if (checkThree(0, 4, 8)) {
+                return true;
+            }
+            if (checkThree(2, 4, 6)) {
+                return true;
             }
 
-            .status {
-                font-size: 1.5rem;
-                margin-bottom: 0.5rem;
+            return false;
+        }
+
+        function checkThree(a, b, c) {
+            // this function will check if the values of the board array at positions a, b, and c are the same
+
+            if (board[a] === board[b] && board[b] === board[c] && board[a] !== "") {
+                return true;
             }
 
-            .restart-button {
-                font-size: 1rem;
-                padding: 0.5rem 1rem;
-                border: 2px solid #333;
-                background-color: #fff;
-                color: #333;
-                cursor: pointer;
+        }
+
+        // Create a function to check for a tie game
+        function checkTie() {
+            let boardFull = true;
+
+            for (let i = 0; i < board.length; i++) {
+                if (board[i] === "") {
+                    boardFull = false;
+                    break;
+                }
             }
 
-            .restart-button:hover {
-                background-color: #333;
-                color: #fff;
-            }
-        </style>
-    </head>
+            return boardFull;
+        }
 
-    <body>
-        
-        <h1>Tic Tac Toe</h1>
-        <div class="board">
-            <div class="cell" id="0"></div>
-            <div class="cell" id="1"></div>
-            <div class="cell" id="2"></div>
-            <div class="cell" id="3"></div>
-            <div class="cell" id="4"></div>
-            <div class="cell" id="5"></div>
-            <div class="cell" id="6"></div>
-            <div class="cell" id="7"></div>
-            <div class="cell" id="8"></div>
-        </div>
-        <div class="game-status">
-            <div class="status">Player X's turn</div>
-            <button class="restart-button">Restart Game</button>
-        </div>
-        <script>
-            // tic tac toe game's JavaScript code goes here
+        // Create a function to restart the game
+        function restartGame() {
+            board = ["", "", "", "", "", "", "", "", ""];
+            playerTurn = "X";
+            gameStatus = "Game On";
 
-            // Define variables to represent the game state
-            let board = ["", "", "", "", "", "", "", "", ""];
-            let playerTurn = "X";
-            let gameStatus = "Game On";
-
-            // Add event listeners to the grid cells to handle player interactions
-            const cells = document.querySelectorAll(".cell");
-            const restartButton = document.querySelector(".restart-button");
+            document.querySelector(".status").innerHTML = `Player ${playerTurn}'s turn`;
 
             cells.forEach((cell) => {
-                cell.addEventListener("click", handleClick);
+                cell.innerHTML = "";
             });
+        }
 
-            restartButton.addEventListener("click", restartGame);
+    </script>
 
-            // Define a function to handle the click event on a grid cell
-            function handleClick(event) {
-                const cell = event.target;
-                const cellIndex = parseInt(cell.getAttribute("id"));
+    <span>
+        <a class="black-text" href="https://github.com/khot-aditya/tic-tac-toe">Source Code</a>
+    </span>
+    <p class="footer-text">
+        This game is 99.99% generated using ChatGPT and GitHub Copilot.
+    </p>
+</body>
 
-                // If the cell is not empty or the game is over, return
-                if (board[cellIndex] !== "" || gameStatus !== "Game On") {
-                    return;
-                }
-
-                // Update the board based on the clicked cell
-                board[cellIndex] = playerTurn;
-                cell.innerHTML = playerTurn;
-
-                // Check for a win condition
-                if (checkWin()) {
-                    gameStatus = `${playerTurn} wins!`;
-                    document.querySelector(".status").innerHTML = gameStatus;
-                    return;
-                }
-
-                // Update the game status
-                if (checkTie()) {
-                    gameStatus = "Tie Game!";
-                    document.querySelector(".status").innerHTML = gameStatus;
-                    return;
-                }
-
-                // Switch players
-                playerTurn = playerTurn === "X" ? "O" : "X";
-                document.querySelector(".status").innerHTML = `Player ${playerTurn}'s turn`;
-            }
-
-            // Create functions to check for a win condition
-            function checkWin() {
-                // Check rows
-                for (let i = 0; i < 9; i += 3) {
-                    if (checkThree(i, i + 1, i + 2)) {
-                        return true;
-                    }
-                }
-
-                // Check columns
-                for (let i = 0; i < 3; i++) {
-                    if (checkThree(i, i + 3, i + 6)) {
-                        return true;
-                    }
-                }
-
-                // Check diagonals
-                if (checkThree(0, 4, 8)) {
-                    return true;
-                }
-                if (checkThree(2, 4, 6)) {
-                    return true;
-                }
-
-                return false;
-            }
-
-            function checkThree(a, b, c) {
-                // this function will check if the values of the board array at positions a, b, and c are the same
-
-                if (board[a] === board[b] && board[b] === board[c] && board[a] !== "") {
-                    return true;
-                }
-
-            }
-
-            // Create a function to check for a tie game
-            function checkTie() {
-                let boardFull = true;
-
-                for (let i = 0; i < board.length; i++) {
-                    if (board[i] === "") {
-                        boardFull = false;
-                        break;
-                    }
-                }
-
-                return boardFull;
-            }
-
-            // Create a function to restart the game
-            function restartGame() {
-                board = ["", "", "", "", "", "", "", "", ""];
-                playerTurn = "X";
-                gameStatus = "Game On";
-
-                document.querySelector(".status").innerHTML = `Player ${playerTurn}'s turn`;
-
-                cells.forEach((cell) => {
-                    cell.innerHTML = "";
-                });
-            }
-            
-        </script>
-    </body>
 </html>
